@@ -166,6 +166,7 @@
                 <td>
                     <input type="date" name="cbirthday" required
                            value="{{ obj_data.cbirthday|date:'Y-m-d' }}">
+{% comment %} obj_data.cbirthday->取資料（例如日期）,|date:'Y-m-d'->filter（過濾器,把日期格式轉成 2024-01-01 這種格式）,{{ }}->Django 輸出 {% endcomment %}
                 </td>
             </tr>
 

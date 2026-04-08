@@ -169,8 +169,10 @@ def getAllItems(request):
     #     print(model_to_dict(item))
     #     print(type(item))
     resultList=list(resultObject.values())#將querySet元素為object,轉成list元素為dict的型態)
-    #Django QuerySet → list of dict->list(queryset.values()),直接就是 dict,效率最好（不會建立 model instance）
-    #QuerySet（object）→ .values()（變 dict）→ list()（變 list）
+    #Django QuerySet（QuerySet of object）→ .values() = object → dict(把「每個 object」拆成 dict,<object → dict>),list() = QuerySet → list<QuerySet → list>
+    #把「資料庫查出來的一堆物件」,轉成「一個 list，裡面每個都是 dict」->一堆盒子（object）,.values()：把每個盒子打開 → 變成內容（dict）,list()：把所有內容裝進清單（list）
+    #API 回傳要用 JSON,JSON = dict / list 才能用,object 不能直接轉 JSON
+    #JSON 最外層只能是：dict（物件）/list（陣列）,因為你現在的資料是多筆資料(list)，不是一筆(dict)
     # print(type(resultList))
     # for item in resultList:
     #     print(model_to_dict(item))
@@ -188,4 +190,76 @@ def getItem(request,id):
         # return HttpResponse("Hello")
         return JsonResponse(resultDict,safe=False)
     except:
-        return HttpResponse({"Error:Item not found"},status=404)
+        return HttpResponse({"error": "Item not found"},status=404)
+
+from django.views.decorators.csrf import csrf_exempt#停止CSRF驗證,讓外部程式也能呼叫這個API,任何 POST 都能送進來
+#CSRF = 跨站請求偽造（Cross-Site Request Forgery）,表單 POST 必須有 csrf_token
+#不要用在：登入系統/會員資料/金流 / 敏感操作,因為會有安全風險
+@csrf_exempt#@csrf_exempt = 我不檢查安全，直接放行  
+def createItem(request):
+    try:
+        if request.method == "GET":#https://example.com/user?id=1,問號拿資料
+            cname = request.GET.get("cname")
+            csex =request.GET.get("csex")
+            cbirthday =request.GET.get("cbirthday")
+            cemail =request.GET.get("cemail")
+            cphone =request.GET.get("cphone")
+            caddr =request.GET.get("caddr")
+            print(f"Received GET data: cname={cname},csex={csex},cbirthday={cbirthday},cemail={cemail},cphone={cphone},caddr={caddr}")
+            # return HttpResponse("get.......")#測試用
+        elif request.method == "POST":#送資料（修改/新增）
+            cname = request.POST.get("cname")
+            csex =request.POST.get("csex")
+            cbirthday =request.POST.get("cbirthday")
+            cemail =request.POST.get("cemail")
+            cphone =request.POST.get("cphone")
+            caddr =request.POST.get("caddr")
+            print(f"Received POST data: cname={cname},csex={csex},cbirthday={cbirthday},cemail={cemail},cphone={cphone},caddr={caddr}")
+            # return HttpResponse("post.......")
+        try:
+            add=students(cname=cname,csex=csex,cbirthday=cbirthday,cemail=cemail,cphone=cphone,caddr=caddr)
+            add.save()
+            return JsonResponse({"message": "Item created successfully"},status=201)  
+        except Exception as e:
+            return JsonResponse({"error": "Failed to create item"},status=500)  
+    except Exception as e:
+        return JsonResponse({"error": "Item not found"},status=400)
+    
+@csrf_exempt
+def updateItem(request,id):
+    print(f"id={id}")
+    try:
+        if request.method == "GET":
+            cname = request.GET.get("cname")
+            csex =request.GET.get("csex")
+            cbirthday =request.GET.get("cbirthday")
+            cemail =request.GET.get("cemail")
+            cphone =request.GET.get("cphone")
+            caddr =request.GET.get("caddr")
+            print(f"GET data: cname={cname},csex={csex},cbirthday={cbirthday},cemail={cemail},cphone={cphone},caddr={caddr}")
+            return HttpResponse("get.......")#測試用
+        elif request.method == "POST":
+            cname = request.POST.get("cname")
+            csex =request.POST.get("csex")
+            cbirthday =request.POST.get("cbirthday")
+            cemail =request.POST.get("cemail")
+            cphone =request.POST.get("cphone")
+            caddr =request.POST.get("caddr")
+            print(f"POST data: cname={cname},csex={csex},cbirthday={cbirthday},cemail={cemail},cphone={cphone},caddr={caddr}")
+            # return HttpResponse("post.......")
+        try:
+            #orm
+            updata = students.objects.get(cid=id)
+            updata.cname=cname
+            updata.csex=csex
+            updata.cbirthday=cbirthday
+            updata.cemail=cemail
+            updata.cphone=cphone
+            updata.caddr=caddr
+            updata.save()
+            return JsonResponse({"message": "Item updated successfully"},status=200)
+        except Exception as e:
+            return JsonResponse({"error": "Failed to update item"},status=500)
+    except Exception as e:
+        return JsonResponse({"error": "Invalid data"},status=400)
+
