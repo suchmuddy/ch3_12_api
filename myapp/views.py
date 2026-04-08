@@ -161,6 +161,31 @@ def delete(request, id):
         print(model_to_dict(obj_data))
         return render(request,'delete.html',{'obj_data':obj_data})
     
+from django.http import JsonResponse 
+def getAllItems(request):
+    resultObject=students.objects.all().order_by('cid')
+    # print(type(resultObject))
+    # for item in resultObject:
+    #     print(model_to_dict(item))
+    #     print(type(item))
+    resultList=list(resultObject.values())#將querySet元素為object,轉成list元素為dict的型態)
+    #Django QuerySet → list of dict->list(queryset.values()),直接就是 dict,效率最好（不會建立 model instance）
+    #QuerySet（object）→ .values()（變 dict）→ list()（變 list）
+    # print(type(resultList))
+    # for item in resultList:
+    #     print(model_to_dict(item))
+    #     print(type(item))
+    #return HttpResponse("Hello")
+    return JsonResponse(resultList,safe=False)
+    #  safe=True,只允許傳入dict
+    #  safe=False,只允許傳非dict
 
-
-
+def getItem(request,id):
+    try:
+        obj = students.objects.get(cid=id)
+        # print(model_to_dict(obj))#用 model_to_dict將object轉成dict
+        resultDict=model_to_dict(obj)
+        # return HttpResponse("Hello")
+        return JsonResponse(resultDict,safe=False)
+    except:
+        return HttpResponse({"Error:Item not found"},status=404)

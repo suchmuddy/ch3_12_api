@@ -26,4 +26,9 @@ urlpatterns = [
     path('post/',views.post,name='post'),
     path('edit/<int:id>/',views.edit,name='edit'),
     path('delete/<int:id>/',views.delete,name='delete'),
+    #web api
+    path('getAllItems/',views.getAllItems,name='getAllItems'),
+    path('getItem/<int:id>/',views.getItem,name='getItem'),
+
 ]
+
