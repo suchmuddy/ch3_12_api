@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- <form action="/search_list/" method="get">
+        <label for="cname1">姓名:</label>
+        <input type="text" name="cname" id="cname1">
+        <p><button type="submit">搜尋</button></p>
+    </form> -->
+    <form action="{% url 'search_list1' %}" method="get"><!--name='search_list1'匿名-->
+        <label for="cname1">姓名:</label>
+        <input type="text" name="cname" id="cname1">
+        <p><button type="submit">搜尋</button></p>
+    </form>
+</body>
+</html>

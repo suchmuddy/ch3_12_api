@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>學生資料管理系統......</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f8fb;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 1000px;
+        margin: 30px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #2c7be5;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 16px;
+        color: #555;
+    }
+
+    a {
+        color: #2c7be5;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    /* 搜尋區 */
+    .search-box {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .search-box input {
+        padding: 8px;
+        width: 100%;
+        max-width: 300px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .search-box button {
+        padding: 8px 15px;
+        border: none;
+        background-color: #2c7be5;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .search-box button:hover {
+        background-color: #1a5fd0;
+    }
+
+    /* 表格 */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    th {
+        background-color: #2c7be5;
+        color: white;
+        padding: 10px;
+    }
+
+    td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+
+    tr:hover {
+        background-color: #f1f7ff;
+    }
+
+    /* 操作按鈕 */
+    .btn {
+        display: block;
+        width: 70px;
+        padding: 6px 0;
+        border-radius: 6px;
+        font-size:12px;
+        margin:2px auto;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .action-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-edit {
+        background-color: #2c7be5;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+    td:last-child {
+    min-width: 90px;
+    }
+
+    /* 分頁 */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;   /* 🔥 關鍵：允許換行 */
+        gap: 6px;
+        margin-top: 20px;
+    }
+
+    .pagination a,
+    .pagination span,
+    .pagination strong {
+        padding: 6px 10px;
+        border-radius: 5px;
+        min-width: 32px;
+        text-align: center;
+    }
+
+    .pagination a {
+        background-color: #e9f2ff;
+        color: #2c7be5;
+    }
+
+    .pagination strong {
+        background-color: #2c7be5;
+        color: white;
+    }
+
+    @media (max-width: 600px) {
+        table {
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 6px;
+        }
+
+        .btn {
+            font-size: 12px;
+            padding: 4px 6px;
+        }
+    }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+
+    <h1>學生資料管理系統</h1>
+    <h2>
+        目前資料筆數: {{ data_count }}，
+        <a href="{% url 'post' %}">新增學生資料</a>
+    </h2>
+
+    <!-- 搜尋 -->
+    <div class="search-box">
+        <form action="{% url 'index' %}" method="get">
+            <input type="search" name="site_search" placeholder="請輸入關鍵字"
+                   value="{{ request.GET.site_search }}">
+            <button type="submit">搜尋</button>
+        </form>
+    </div>
+
+    {% if status %}
+        <table>
+            <tr>
+                <th>學號</th>
+                <th>姓名</th>
+                <th>性別</th>
+                <th>生日</th>
+                <th>信箱</th>
+                <th>電話</th>
+                <th>地址</th>
+                <th>操作</th>
+            </tr>
+
+            {% for data in page_obj %}
+            <tr>
+                <td>{{ data.cid }}</td>
+                <td>{{ data.cname }}</td>
+                <td>{% if data.csex == "M" %}男{% else %}女{% endif %}</td>
+                <td>{{ data.cbirthday|date:'Y-m-d' }}</td>
+                <td>{{ data.cemail }}</td>
+                <td>{{ data.cphone }}</td>
+                <td>{{ data.caddr }}</td>
+                <td>
+                    <div class="action-group">
+                        <a class="btn btn-edit" href="/edit/{{ data.cid }}/">編輯</a>
+                        <a class="btn btn-delete" href="/delete/{{ data.cid }}/">刪除</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- 分頁 -->
+        <div class="pagination">
+
+            {% if page_obj.has_previous %}
+                <a href="?page=1">«</a>
+                <a href="?page={{ page_obj.previous_page_number }}">‹</a>
+            {% else %}
+                <span>«</span>
+                <span>‹</span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <strong>{{ num }}</strong>
+                {% else %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">»</a>
+            {% else %}
+                <span>›</span>
+                <span>»</span>
+            {% endif %}
+
+        </div>
+
+    {% else %}
+        <h2 style="text-align:center; color:red;">{{ errormessage }}</h2>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>學生資料管理系統-刪除資料</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f8fb;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 700px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+        text-align: center;
+        color: #2c7be5;
+        margin-bottom: 10px;
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #2c7be5;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    .warning-box {
+        background-color: #fff4f4;
+        border: 1px solid #f5c2c7;
+        color: #b02a37;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        width: 30%;
+        text-align: left;
+        padding: 12px 10px;
+        background-color: #f1f7ff;
+        color: #333;
+        border-bottom: 1px solid #dbe7f5;
+    }
+
+    td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #dbe7f5;
+        color: #444;
+    }
+
+    .button-group {
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 22px;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        cursor: pointer;
+        margin: 0 8px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #bb2d3b;
+    }
+
+    .btn-cancel {
+        background-color: #e9ecef;
+        color: #333;
+    }
+
+    .btn-cancel:hover {
+        background-color: #d6dbe1;
+    }
+</style>
+
+<script>
+    function doublecheck() {
+        return confirm("您確定要刪除這筆資料嗎？\n刪除後將無法恢復。");
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>學生資料管理系統 - 刪除資料</h1>
+    <a href="{% url 'index' %}" class="back-link">← 回首頁</a>
+
+    <div class="warning-box">
+        您目前正在進行刪除操作，刪除後資料將無法恢復。
+    </div>
+
+    <form action="{% url 'delete' obj_data.cid %}" method="post">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <th>姓名</th>
+                <td>{{ obj_data.cname }}</td>
+            </tr>
+            <tr>
+                <th>性別</th>
+                <td>{% if obj_data.csex == "M" %}男{% else %}女{% endif %}</td>
+            </tr>
+            <tr>
+                <th>生日</th>
+                <td>{{ obj_data.cbirthday|date:'Y-m-d' }}</td>
+            </tr>
+            <tr>
+                <th>信箱</th>
+                <td>{{ obj_data.cemail }}</td>
+            </tr>
+            <tr>
+                <th>電話</th>
+                <td>{{ obj_data.cphone }}</td>
+            </tr>
+            <tr>
+                <th>地址</th>
+                <td>{{ obj_data.caddr }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="button-group">
+                    <a href="{% url 'index' %}" class="btn btn-cancel">取消</a>
+                    <input type="submit" value="確認刪除" class="btn btn-delete" onclick="return doublecheck();">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+{% endblock %}
